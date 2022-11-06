@@ -28,6 +28,7 @@ uint8_t* EthernetClass::stack_heap_ptr = NULL;
 size_t EthernetClass::stack_heap_size = 0;
 ssize_t EthernetClass::socket_size = 0;
 uint8_t EthernetClass::socket_num = 0;
+bool EthernetClass::use_polling = false;
 IntervalTimer EthernetClass::_fnet_poll;
 volatile boolean EthernetClass::link_status = 0;
 DMAMEM uint8_t** EthernetClass::socket_buf_receive;
@@ -60,8 +61,10 @@ void EthernetClass::setSocketNum(uint8_t _socket_num){
     else socket_num = _socket_num;
 }
 
-int EthernetClass::begin(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout)
+int EthernetClass::begin(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout, bool usePolling)
 {
+    use_polling = use_polling;
+    
     unsigned long startMillis = millis();
     if(!fnet_netif_is_initialized(fnet_netif_get_default())){
         struct fnet_init_params     init_params;
@@ -137,7 +140,8 @@ int EthernetClass::begin(uint8_t *mac, unsigned long timeout, unsigned long resp
               static unsigned long _responseTimeout = responseTimeout;
               link_params.callback_param = &_responseTimeout;
               fnet_link_init(&link_params);
-              _fnet_poll.begin(fnet_poll, FNET_POLL_TIME);
+              if(!use_polling)
+                _fnet_poll.begin(fnet_poll, FNET_POLL_TIME);
             }
           }
           else {
@@ -156,12 +160,14 @@ int EthernetClass::begin(uint8_t *mac, unsigned long timeout, unsigned long resp
     }
     
     while(!fnet_dhcp_cln_is_enabled(fnet_dhcp_cln_get_by_netif(fnet_netif_get_default()))){
+        if(use_polling) fnet_poll();
         //Wait for dhcp initialization
         if(millis() - startMillis >= timeout) return false;
     }
     
     struct fnet_dhcp_cln_options current_options;
     do {//Wait for IP Address
+        if(use_polling) fnet_poll();
         fnet_dhcp_cln_get_options(fnet_dhcp_cln_get_by_netif(fnet_netif_get_default()), &current_options);
         if(millis() - startMillis >= timeout) return false;
     } while (!current_options.ip_address.s_addr);
@@ -193,8 +199,10 @@ void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress g
 	begin(mac, ip, dns, gateway, subnet);
 }
 
-void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress gateway, IPAddress subnet)
+void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress gateway, IPAddress subnet, bool usePolling)
 {
+    use_polling = use_polling;
+
     if(!fnet_netif_is_initialized(fnet_netif_get_default())){
         struct fnet_init_params     init_params;
         if(stack_heap_size == 0){
@@ -267,7 +275,8 @@ void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress g
               link_params.netif_desc = fnet_netif_get_default();
               link_params.callback = link_callback;
               fnet_link_init(&link_params);
-              _fnet_poll.begin(fnet_poll, FNET_POLL_TIME);
+              if(!use_polling)
+                _fnet_poll.begin(fnet_poll, FNET_POLL_TIME);
             }
           }
           else {
@@ -291,6 +300,7 @@ void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress g
     fnet_netif_set_ip4_dns(fnet_netif_get_default(), dns);
     
     while(!link_status){
+        if(use_polling) fnet_poll();
     }
 }
 
@@ -315,6 +325,7 @@ EthernetHardwareStatus EthernetClass::hardwareStatus()
 
 int EthernetClass::maintain()
 {
+    if(use_polling) fnet_poll();
 	return 0; //DHCP already maintained
 }
 

@@ -33,12 +33,16 @@
 // up to 4 sockets.  W5200 & W5500 can have up to 8 sockets.  Several bytes
 // of RAM are used for each socket.  Reducing the maximum can save RAM, but
 // you are limited to fewer simultaneous connections.
+#ifndef MAX_SOCK_NUM
 #if defined(RAMEND) && defined(RAMSTART) && ((RAMEND - RAMSTART) <= 2048)
 #define MAX_SOCK_NUM 4
 #else
 #define MAX_SOCK_NUM 8
 #endif
+#endif 
+#ifndef FNET_SOCKET_DEFAULT_SIZE 
 #define FNET_SOCKET_DEFAULT_SIZE 1024 * 2
+#endif
 #define FNET_STACK_HEAP_DEFAULT_SIZE 64u * 1024u //64k
 #define FNET_POLL_TIME 1000 //Time in microseconds
 
@@ -87,6 +91,7 @@ private:
     static size_t stack_heap_size;
     static ssize_t socket_size;
     static uint8_t socket_num;
+	static bool use_polling;
 public:
     static volatile fnet_socket_t* socket_ptr;
     static DMAMEM uint8_t** socket_buf_receive;
@@ -98,7 +103,7 @@ public:
     static void setStackHeap(size_t stack_heap_size); //Change allocated stack heap size
     static void setSocketSize(size_t _socket_size); //Change allocated socket size
     static void setSocketNum(uint8_t _socket_num); //Change allocated socket num
-	static int begin(uint8_t *mac, unsigned long timeout = 60000, unsigned long responseTimeout = 4000);
+	static int begin(uint8_t *mac, unsigned long timeout = 60000, unsigned long responseTimeout = 4000, bool usePolling = false);
 	static int maintain();
 	static EthernetLinkStatus linkStatus();
 	static EthernetHardwareStatus hardwareStatus();
@@ -107,7 +112,7 @@ public:
 	static void begin(uint8_t *mac, IPAddress ip);
 	static void begin(uint8_t *mac, IPAddress ip, IPAddress dns);
 	static void begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress gateway);
-	static void begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress gateway, IPAddress subnet);
+	static void begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress gateway, IPAddress subnet, bool usePolling = false);
 	static void init(uint8_t sspin = 10);
 
 	static void MACAddress(uint8_t *mac_address);
