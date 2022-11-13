@@ -63,7 +63,7 @@ void EthernetClass::setSocketNum(uint8_t _socket_num){
 
 int EthernetClass::begin(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout, bool usePolling)
 {
-    use_polling = use_polling;
+    use_polling = usePolling;
     
     unsigned long startMillis = millis();
     if(!fnet_netif_is_initialized(fnet_netif_get_default())){
@@ -201,7 +201,7 @@ void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress g
 
 void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress gateway, IPAddress subnet, bool usePolling)
 {
-    use_polling = use_polling;
+    use_polling = usePolling;
 
     if(!fnet_netif_is_initialized(fnet_netif_get_default())){
         struct fnet_init_params     init_params;
