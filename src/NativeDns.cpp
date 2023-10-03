@@ -24,6 +24,7 @@ int DNSClient::inet_aton(const char* address, IPAddress& result)
 
 void DNSClient::fnet_dns_callback(const fnet_dns_resolved_addr_t* addr_list, long unsigned int addr_list_size, const char* host_name, void* cookie)
 {
+    (void)host_name;
     DNSClient* dns_p = (DNSClient*)cookie;
     if(addr_list == FNET_NULL){
         dns_p->resolveDone = -1;
@@ -49,6 +50,8 @@ void DNSClient::fnet_dns_callback(const fnet_dns_resolved_addr_t* addr_list, lon
 
 int DNSClient::getHostByName(const char* aHostname, IPAddress& aResult, uint16_t timeout)
 {
+    (void)timeout;
+
     // See if it's a numeric IP address
     if (inet_aton(aHostname, aResult)) 
     {

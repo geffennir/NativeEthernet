@@ -120,6 +120,7 @@ makesocket:
 // multicast version to set fields before open  thd
 uint8_t EthernetClass::socketBeginMulticast(uint8_t protocol, IPAddress ip, uint16_t port)
 {
+    (void)protocol;
     uint8_t s = socketBegin(SnMR::UDP, port);
     if(s == socket_num) return socket_num;
     

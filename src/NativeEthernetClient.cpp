@@ -131,6 +131,7 @@ int EthernetClient::connectPoll(){
 #if FNET_CFG_TLS
 int EthernetClient::connect(const char * host, uint16_t port, bool tls)
 {
+    (void)tls;
     _tls_en = true;
     if(_tls_en && tls_desc != 0){
         EthernetServer::_tls[sockindex] = true;
@@ -165,6 +166,7 @@ int EthernetClient::connect(const char * host, uint16_t port, bool tls)
 
 int EthernetClient::connect(IPAddress ip, uint16_t port, bool tls)
 {
+    (void)tls;
     //Probably not supported, maybe
     _tls_en = false;
     return connect(ip, port);

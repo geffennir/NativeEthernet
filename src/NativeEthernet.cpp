@@ -306,7 +306,7 @@ void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress g
 
 void EthernetClass::init(uint8_t sspin)
 {
-	
+	(void)sspin;
 }
 
 EthernetLinkStatus EthernetClass::linkStatus()
@@ -385,33 +385,41 @@ void EthernetClass::setDnsServerIP(const IPAddress dns_server)
 
 void EthernetClass::setRetransmissionTimeout(uint16_t milliseconds)
 {
+    (void)milliseconds;
 	//Not needed, probably
 }
 
 void EthernetClass::setRetransmissionCount(uint8_t num)
 {
+    (void)num;
 	//Not needed, probably
 }
 
 
 
-fnet_return_t EthernetClass::teensy_mutex_init(fnet_mutex_t *mutex) {
-  return FNET_OK;
+fnet_return_t EthernetClass::teensy_mutex_init(fnet_mutex_t *mutex)
+{
+    (void)mutex;
+    return FNET_OK;
 }
 
 void EthernetClass::teensy_mutex_release(fnet_mutex_t *mutex) {
+  (void)mutex;
 }
 
 void EthernetClass::teensy_mutex_lock(fnet_mutex_t *mutex) {
+  (void)mutex;
 }
 
-void EthernetClass::teensy_mutex_unlock(fnet_mutex_t *mutex) {
-}
+void EthernetClass::teensy_mutex_unlock(fnet_mutex_t *mutex){
+    (void)mutex;
+    }
 
-fnet_time_t EthernetClass::timer_get_ms(void){ //Used for multi-thread version
-    fnet_time_t result;
-    result =  millis();
-    return result;
+fnet_time_t EthernetClass::timer_get_ms(void)
+{ // Used for multi-thread version
+  fnet_time_t result;
+  result = millis();
+  return result;
 }
 
 void EthernetClass::link_callback(fnet_netif_desc_t netif, fnet_bool_t connected, void *callback_param){
@@ -447,6 +455,10 @@ void EthernetClass::link_callback(fnet_netif_desc_t netif, fnet_bool_t connected
 }
 
 void EthernetClass::dhcp_cln_callback_updated(fnet_dhcp_cln_desc_t _dhcp_desc, fnet_netif_desc_t netif, void *p) { //Called when DHCP updates
+  // FIXME: report for fix in global
+  (void)p;
+  (void)netif;
+
   struct fnet_dhcp_cln_options current_options;
   fnet_dhcp_cln_get_options(_dhcp_desc, &current_options);
   
