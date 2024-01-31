@@ -83,6 +83,11 @@ void EthernetClass::setSocketSize(size_t _socket_size)
     socket_size = _socket_size;
 }
 
+#ifdef NATIVE_ETHERNET_USE_STATIC_ALLOCATION
+static uint8_t gs_socket_buf_transmit[MAX_SOCK_NUM][FNET_SOCKET_DEFAULT_SIZE];
+static uint8_t gs_socket_buf_receive[MAX_SOCK_NUM][FNET_SOCKET_DEFAULT_SIZE];
+#endif
+
 void EthernetClass::setSocketNum(uint8_t _socket_num)
 {
     if (socket_num != 0)
@@ -107,7 +112,13 @@ int EthernetClass::begin(uint8_t *mac, unsigned long timeout, unsigned long resp
         }
         if (stack_heap_ptr == NULL)
         {
+#ifdef NATIVE_ETHERNET_USE_STATIC_ALLOCATION
+            static uint8_t gs_HeapPtr[FNET_STACK_HEAP_DEFAULT_SIZE];
+            stack_heap_size = FNET_STACK_HEAP_DEFAULT_SIZE;
+            stack_heap_ptr = gs_HeapPtr;
+#else
             stack_heap_ptr = new uint8_t[stack_heap_size];
+#endif
         }
         if (socket_size == 0)
         {
@@ -133,8 +144,14 @@ int EthernetClass::begin(uint8_t *mac, unsigned long timeout, unsigned long resp
 
         for (uint8_t i = 0; i < socket_num; i++)
         {
+
+#ifdef NATIVE_ETHERNET_USE_STATIC_ALLOCATION
+            socket_buf_transmit[i] = gs_socket_buf_transmit[i];
+            socket_buf_receive[i] = gs_socket_buf_receive[i];
+#else
             socket_buf_transmit[i] = new uint8_t[socket_size];
             socket_buf_receive[i] = new uint8_t[socket_size];
+#endif
             socket_addr[i] = new uint8_t[4];
             socket_ptr[i] = nullptr;
 #if FNET_CFG_TLS
@@ -290,8 +307,15 @@ void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress g
 
         for (uint8_t i = 0; i < socket_num; i++)
         {
+
+#ifdef NATIVE_ETHERNET_USE_STATIC_ALLOCATION
+            socket_size = FNET_SOCKET_DEFAULT_SIZE;
+            socket_buf_transmit[i] = gs_socket_buf_transmit[i];
+            socket_buf_receive[i] = gs_socket_buf_receive[i];
+#else
             socket_buf_transmit[i] = new uint8_t[socket_size];
             socket_buf_receive[i] = new uint8_t[socket_size];
+#endif
             socket_addr[i] = new uint8_t[4];
             socket_ptr[i] = nullptr;
 #if FNET_CFG_TLS
