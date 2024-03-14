@@ -199,9 +199,18 @@ int EthernetClass::begin(uint8_t *mac, unsigned long timeout, unsigned long resp
                     link_params.callback = link_callback;
                     static unsigned long _responseTimeout = responseTimeout;
                     link_params.callback_param = &_responseTimeout;
-                    fnet_link_init(&link_params);
+                    if (fnet_link_init(&link_params))
+                    {
+                        // Serial.println("Link init success");
+                    }
+                    else
+                    {
+                        Serial.println("Link init failed");
+                    }
                     if (!use_polling)
                         _fnet_poll.begin(fnet_poll, FNET_POLL_TIME);
+                    else
+                        fnet_poll();
                 }
             }
             else
@@ -361,9 +370,18 @@ void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress g
                     fnet_link_params_t link_params;
                     link_params.netif_desc = fnet_netif_get_default();
                     link_params.callback = link_callback;
-                    fnet_link_init(&link_params);
+                    if (fnet_link_init(&link_params))
+                    {
+                        // Serial.println("Link init success");
+                    }
+                    else
+                    {
+                        Serial.println("Link init failed");
+                    }
                     if (!use_polling)
                         _fnet_poll.begin(fnet_poll, FNET_POLL_TIME);
+                    else
+                        fnet_poll();
                 }
             }
             else
@@ -389,10 +407,18 @@ void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress g
     fnet_netif_set_ip4_gateway(fnet_netif_get_default(), gateway);
     fnet_netif_set_ip4_dns(fnet_netif_get_default(), dns);
 
+    unsigned int printMillis = getTime();
+
     while (!link_status)
     {
         if (use_polling)
             fnet_poll();
+        if (printMillis + 10000 < getTime())
+        {
+            printMillis = getTime();
+            Serial.printf("%u - waiting link \n", getTime());
+            fnet_poll();
+        }
     }
 }
 
