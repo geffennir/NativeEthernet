@@ -416,7 +416,7 @@ void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress g
         if (printMillis + 10000 < getTime())
         {
             printMillis = getTime();
-            Serial.printf("%u - waiting link \n", getTime());
+            Serial.printf("%u - waiting link \r\n", getTime());
             fnet_poll();
         }
     }
