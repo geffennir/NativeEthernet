@@ -584,7 +584,6 @@ void EthernetClass::link_callback(fnet_netif_desc_t netif, fnet_bool_t connected
 
 void EthernetClass::dhcp_cln_callback_updated(fnet_dhcp_cln_desc_t _dhcp_desc, fnet_netif_desc_t netif, void *p)
 { // Called when DHCP updates
-    // FIXME: report for fix in global
     (void)p;
     (void)netif;
 
